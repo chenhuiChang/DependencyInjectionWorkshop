@@ -12,7 +12,8 @@ namespace DependencyInjectionWorkshopTests
             var authenticationService = new AuthenticationService();
             string account="joey";
             string password="hello";
-            Assert.AreEqual(true, authenticationService.IsValid(account, password)); 
+            string otp = "123456";
+            Assert.AreEqual(true, authenticationService.IsValid(account, password, otp)); 
         }
     }
 }
