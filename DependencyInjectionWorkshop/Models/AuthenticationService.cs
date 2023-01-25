@@ -21,9 +21,9 @@ namespace DependencyInjectionWorkshop.Models
             isLockedResponse.EnsureSuccessStatusCode();
             if (isLockedResponse.Content.ReadAsAsync<bool>().Result)
             {
-                throw new FailedTooManyTimesException(){Account = account};
+                throw new FailedTooManyTimesException() { Account = account };
             }
-            
+
             string passwordFromDb;
             using (var connection = new SqlConnection("my connection string"))
             {
@@ -51,16 +51,16 @@ namespace DependencyInjectionWorkshop.Models
 
             if (passwordFromDb == hashedPassword && currentOtp == otp)
             {
-                var resetResponse = httpClient.PostAsJsonAsync("api/failedCounter/Reset", account).Result; 
+                var resetResponse = httpClient.PostAsJsonAsync("api/failedCounter/Reset", account).Result;
                 resetResponse.EnsureSuccessStatusCode();
 
                 return true;
             }
             else
             {
-                var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", account).Result; 
+                var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", account).Result;
                 addFailedCountResponse.EnsureSuccessStatusCode();
-                
+
                 var failedCountResponse =
                     httpClient.PostAsJsonAsync("api/failedCounter/GetFailedCount", account).Result;
 
@@ -69,7 +69,7 @@ namespace DependencyInjectionWorkshop.Models
                 var failedCount = failedCountResponse.Content.ReadAsAsync<int>().Result;
                 var logger = LogManager.GetCurrentClassLogger();
                 logger.Info($"accountId:{account} failed times:{failedCount}");
-                
+
                 string message = $"account:{account} try to login failed";
                 var slackClient = new SlackClient("my api token");
                 slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
