@@ -22,15 +22,15 @@ namespace DependencyInjectionWorkshop.Models
             _logger = logger;
         }
 
-        public AuthenticationService()
-        {
-            _profileRepo = new ProfileRepo();
-            _failedCounter = new FailedCounter();
-            _notification = new SlackAdapter();
-            _hash = new Sha256Adapter();
-            _otp = new OtpAdapter();
-            _logger = new Logger();
-        }
+        // public AuthenticationService()
+        // {
+        //     _profileRepo = new ProfileRepo();
+        //     _failedCounter = new FailedCounter();
+        //     _notification = new SlackAdapter();
+        //     _hash = new Sha256Adapter();
+        //     _otp = new OtpAdapter();
+        //     _logger = new Logger();
+        // }
 
         public bool IsValid(string account, string password, string otp)
         {
