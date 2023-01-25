@@ -1,38 +1,41 @@
+using System;
 using System.Net.Http;
 
 namespace DependencyInjectionWorkshop.Models
 {
     public class FailedCounter : IFailedCounter
     {
+        private readonly HttpClient _httpClient;
+
         public FailedCounter()
         {
+            _httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
         }
 
-        public bool IsLocked(string account, HttpClient httpClient)
+        public bool IsLocked(string account)
         {
-            var isLockedResponse = httpClient.PostAsJsonAsync("api/failedCounter/IsLocked", account).Result;
+            var isLockedResponse = _httpClient.PostAsJsonAsync("api/failedCounter/IsLocked", account).Result;
 
             isLockedResponse.EnsureSuccessStatusCode();
             var isLocked = isLockedResponse.Content.ReadAsAsync<bool>().Result;
             return isLocked;
         }
 
-        public void Reset(string account, HttpClient httpClient)
+        public void Reset(string account)
         {
-            var resetResponse = httpClient.PostAsJsonAsync("api/failedCounter/Reset", account).Result;
+            var resetResponse = _httpClient.PostAsJsonAsync("api/failedCounter/Reset", account).Result;
             resetResponse.EnsureSuccessStatusCode();
         }
 
-        public void Add(string account, HttpClient httpClient)
+        public void Add(string account)
         {
-            var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", account).Result;
+            var addFailedCountResponse = _httpClient.PostAsJsonAsync("api/failedCounter/Add", account).Result;
             addFailedCountResponse.EnsureSuccessStatusCode();
         }
 
-        public int Get(string account, HttpClient httpClient)
+        public int Get(string account)
         {
-            var failedCountResponse =
-                httpClient.PostAsJsonAsync("api/failedCounter/GetFailedCount", account).Result;
+            var failedCountResponse = _httpClient.PostAsJsonAsync("api/failedCounter/GetFailedCount", account).Result;
 
             failedCountResponse.EnsureSuccessStatusCode();
 

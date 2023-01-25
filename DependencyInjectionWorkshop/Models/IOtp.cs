@@ -4,6 +4,6 @@ namespace DependencyInjectionWorkshop.Models
 {
     public interface IOtp
     {
-        string GetCurrentOtp(string account, HttpClient httpClient);
+        string GetCurrentOtp(string account);
     }
 }

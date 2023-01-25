@@ -34,8 +34,7 @@ namespace DependencyInjectionWorkshop.Models
 
         public bool IsValid(string account, string password, string otp)
         {
-            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
-            var isLocked = _failedCounter.IsLocked(account, httpClient);
+            var isLocked = _failedCounter.IsLocked(account);
             if (isLocked)
             {
                 throw new FailedTooManyTimesException() { Account = account };
@@ -43,17 +42,17 @@ namespace DependencyInjectionWorkshop.Models
 
             var passwordFromDb = _profileRepo.GetPasswordFromDb(account);
             var hashedPassword = _hash.GetHashedPassword(password);
-            var currentOtp = _otp.GetCurrentOtp(account, httpClient);
+            var currentOtp = _otp.GetCurrentOtp(account);
 
             if (passwordFromDb == hashedPassword && currentOtp == otp)
             {
-                _failedCounter.Reset(account, httpClient);
+                _failedCounter.Reset(account);
                 return true;
             }
             else
             {
-                _failedCounter.Add(account, httpClient);
-                var failedCount = _failedCounter.Get(account, httpClient);
+                _failedCounter.Add(account);
+                var failedCount = _failedCounter.Get(account);
                 _logger.LogInfo(account, failedCount);
                 _notification.Notify(account);
                 return false;
