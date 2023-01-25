@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using Dapper;
+using NLog;
 using SlackAPI;
 
 namespace DependencyInjectionWorkshop.Models
@@ -59,6 +60,15 @@ namespace DependencyInjectionWorkshop.Models
             {
                 var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", account).Result; 
                 addFailedCountResponse.EnsureSuccessStatusCode();
+                
+                var failedCountResponse =
+                    httpClient.PostAsJsonAsync("api/failedCounter/GetFailedCount", account).Result;
+
+                failedCountResponse.EnsureSuccessStatusCode();
+
+                var failedCount = failedCountResponse.Content.ReadAsAsync<int>().Result;
+                var logger = LogManager.GetCurrentClassLogger();
+                logger.Info($"accountId:{account} failed times:{failedCount}");
                 
                 string message = $"account:{account} try to login failed";
                 var slackClient = new SlackClient("my api token");
