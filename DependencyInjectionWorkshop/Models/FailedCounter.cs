@@ -2,7 +2,7 @@ using System.Net.Http;
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public class FailedCounter
+    public class FailedCounter : IFailedCounter
     {
         public FailedCounter()
         {

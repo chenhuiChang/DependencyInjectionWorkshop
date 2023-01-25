@@ -3,7 +3,7 @@ using System.Net.Http;
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public class OtpAdapter
+    public class OtpAdapter : IOtp
     {
         public OtpAdapter()
         {
