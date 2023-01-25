@@ -7,7 +7,7 @@ namespace DependencyInjectionWorkshop.Models
 {
     public class ProfileRepo : IProfileRepo
     {
-        public string GetPasswordFromDb(string account)
+        public string GetPassword(string account)
         {
             string passwordFromDb;
             using (var connection = new SqlConnection("my connection string"))
