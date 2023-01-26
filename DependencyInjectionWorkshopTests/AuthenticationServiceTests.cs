@@ -1,5 +1,6 @@
 ﻿using DependencyInjectionWorkshop.Models;
 using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 using NUnit.Framework;
 
 namespace DependencyInjectionWorkshopTests
@@ -42,6 +43,123 @@ namespace DependencyInjectionWorkshopTests
                 "hello",
                 "123_456_joey_hello_world");
             ShouldBeValid(isValid);
+        }
+        
+        [Test]
+        public void should_reset_failed_count_when_valid()
+        {
+            GivenAccountIsLocked("joey", false);
+            GivenPasswordFromRepo("joey", "hashed password");
+            GivenHashedResult("hello", "hashed password");
+            GivenCurrentOtp("joey", "123_456_joey_hello_world");
+
+            var isValid = _authenticationService.IsValid(
+                "joey",
+                "hello",
+                "123_456_joey_hello_world");
+            
+            ShouldResetFailedCount("joey");
+        }
+
+        [Test]
+        public void Invalid()
+        {
+            GivenAccountIsLocked("joey", false);
+            GivenPasswordFromRepo("joey", "hashed password");
+            GivenHashedResult("hello", "wrong password");
+            GivenCurrentOtp("joey", "123_456_joey_hello_world");
+
+            var isValid = _authenticationService.IsValid(
+                "joey",
+                "hello",
+                "123_456_joey_hello_world");
+            
+            ShouldBeInvalid(isValid);
+        }
+
+        [Test]
+        public void should_add_failed_count_when_invalid()
+        {
+            WhenInvalid();
+            ShouldAddFailedCount("joey");
+        }
+
+        [Test]
+        public void should_notify_user_when_invalid()
+        {
+            WhenInvalid();
+            ShouldNotifyUser("joey");
+        }
+
+        [Test]
+        public void should_log_account_and_failed_count()
+        {
+            GivenCurrentFailedCount("joey", 3);
+            WhenInvalid();
+            ShouldLog("times:3.");
+        }
+
+        [Test]
+        public void should_lock()
+        {
+            GivenAccountIsLocked("joey", true);
+            ShouldThrowWhenLock("joey");
+        }
+
+        private void ShouldThrowWhenLock(string account)
+        {
+            Assert.Throws<FailedTooManyTimesException>(() =>
+            {
+                _authenticationService.IsValid(
+                    account,
+                    "hello",
+                    "123_456_joey_hello_world");
+            });
+        }
+
+        private void ShouldLog(string containContent)
+        {
+            _logger.Received(1).LogInfo(Arg.Is<string>(s => s.Contains(containContent)));
+        }
+
+        private void GivenCurrentFailedCount(string account, int failedCount)
+        {
+            _failedCounter.Get(account).Returns(failedCount);
+        }
+
+        private void ShouldNotifyUser(string account)
+        {
+            _notification.Received(1).Notify(account);
+        }
+
+        private void ShouldAddFailedCount(string account)
+        {
+            _failedCounter.Received(1).Add(account);
+        }
+
+        private void WhenInvalid()
+        {
+            GivenAccountIsLocked("joey", false);
+            GivenPasswordFromRepo("joey", "hashed password");
+            GivenHashedResult("hello", "wrong password");
+            GivenCurrentOtp("joey", "123_456_joey_hello_world");
+
+            var isValid = _authenticationService.IsValid(
+                "joey",
+                "hello",
+                "123_456_joey_hello_world");
+        }
+
+
+        private static void ShouldBeInvalid(bool isValid)
+        {
+            Assert.AreEqual(false, isValid);
+        }
+
+
+        private void ShouldResetFailedCount(string account)
+        {
+            _failedCounter.Received(1).Reset(account);
         }
 
         private void GivenHashedResult(string input, string hashedResult)

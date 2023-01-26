@@ -8,10 +8,10 @@ namespace DependencyInjectionWorkshop.Models
         {
         }
 
-        public void LogInfo(string account, int failedCount)
+        public void LogInfo(string message)
         {
             var logger = LogManager.GetCurrentClassLogger();
-            logger.Info($"accountId:{account} failed times:{failedCount}");
+            logger.Info(message);
         }
     }
 }
