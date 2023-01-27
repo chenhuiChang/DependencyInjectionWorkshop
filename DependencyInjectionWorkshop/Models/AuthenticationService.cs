@@ -3,7 +3,7 @@ using System.Net.Http;
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public class AuthenticationService
+    public class AuthenticationService : IAuthenticationService
     {
         private readonly IProfileRepo _profileRepo;
         private readonly IFailedCounter _failedCounter;
@@ -54,9 +54,14 @@ namespace DependencyInjectionWorkshop.Models
                 _failedCounter.Add(account);
                 var failedCount = _failedCounter.Get(account);
                 _logger.LogInfo($"accountId:{account} failed times:{failedCount}.");
-                _notification.Notify(account);
+                NotifyForDecorator(account);
                 return false;
             }
+        }
+
+        private void NotifyForDecorator(string account)
+        {
+            _notification.Notify($"account:{account} try to login failed");
         }
     }
 }

@@ -129,7 +129,7 @@ namespace DependencyInjectionWorkshopTests
 
         private void ShouldNotifyUser(string account)
         {
-            _notification.Received(1).Notify(account);
+            _notification.Received(1).Notify($"account:{account} try to login failed");
         }
 
         private void ShouldAddFailedCount(string account)

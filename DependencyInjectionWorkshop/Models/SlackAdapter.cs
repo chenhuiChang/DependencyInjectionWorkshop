@@ -8,9 +8,8 @@ namespace DependencyInjectionWorkshop.Models
         {
         }
 
-        public void Notify(string account)
+        public void Notify(string message)
         {
-            string message = $"account:{account} try to login failed";
             var slackClient = new SlackClient("my api token");
             slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
         }

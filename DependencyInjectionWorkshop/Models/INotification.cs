@@ -2,6 +2,6 @@ namespace DependencyInjectionWorkshop.Models
 {
     public interface INotification
     {
-        void Notify(string account);
+        void Notify(string message);
     }
 }
