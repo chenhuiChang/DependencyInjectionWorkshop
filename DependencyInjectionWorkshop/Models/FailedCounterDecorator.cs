@@ -28,7 +28,12 @@ namespace DependencyInjectionWorkshop.Models
                 throw new FailedTooManyTimesException() { Account = account };
             }
 
-            return _authenticationService.IsValid(account, password, otp);
+            var isValid = _authenticationService.IsValid(account, password, otp);
+            if (isValid)
+            {
+                _failedCounter.Reset(account);
+            }
+            return isValid;
         }
     }
 }

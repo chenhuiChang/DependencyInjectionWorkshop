@@ -37,7 +37,6 @@
 
             if (passwordFromDb == hashedPassword && currentOtp == otp)
             {
-                _failedCounter.Reset(account);
                 return true;
             }
             else
