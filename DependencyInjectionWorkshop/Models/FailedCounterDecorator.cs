@@ -33,6 +33,7 @@ namespace DependencyInjectionWorkshop.Models
             {
                 _failedCounter.Reset(account);
             }
+            _failedCounter.Add(account);
             return isValid;
         }
     }

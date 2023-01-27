@@ -7,6 +7,7 @@
         private readonly IHash _hash;
         private readonly IOtp _otp;
         private readonly ILogger _logger;
+        private FailedCounterDecorator _failedCounterDecorator;
 
         public AuthenticationService(IProfileRepo profileRepo, IFailedCounter failedCounter, IHash hash, IOtp otp, ILogger logger)
         {
@@ -41,7 +42,7 @@
             }
             else
             {
-                _failedCounter.Add(account);
+                // _failedCounterDecorator.AddFailedCounter(account, this);
                 var failedCount = _failedCounter.Get(account);
                 _logger.LogInfo($"accountId:{account} failed times:{failedCount}.");
                 return false;
