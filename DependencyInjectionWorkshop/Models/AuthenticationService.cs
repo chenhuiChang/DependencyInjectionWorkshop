@@ -29,11 +29,7 @@
 
         public bool IsValid(string account, string password, string otp)
         {
-            var isLocked = _failedCounter.IsLocked(account);
-            if (isLocked)
-            {
-                throw new FailedTooManyTimesException() { Account = account };
-            }
+            // _failedCounterDecorator.ThrowIfLocked(account);
 
             var passwordFromDb = _profileRepo.GetPassword(account);
             var hashedPassword = _hash.GetHashedPassword(password);
