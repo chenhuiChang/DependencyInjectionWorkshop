@@ -8,7 +8,7 @@ namespace DependencyInjectionWorkshopTests
     [TestFixture]
     public class AuthenticationServiceTests
     {
-        private AuthenticationService _authenticationService;
+        private IAuthenticationService _authenticationService;
         private IProfileRepo _profileRepo;
         private IFailedCounter _failedCounter;
         private INotification _notification;
@@ -27,7 +27,7 @@ namespace DependencyInjectionWorkshopTests
             _otp = Substitute.For<IOtp>();
             _logger = Substitute.For<ILogger>();
             _authenticationService =
-                new AuthenticationService(_profileRepo, _failedCounter, _notification, _hash, _otp, _logger);
+                new NotificationDecorator(_notification, new AuthenticationService(_profileRepo, _failedCounter, _hash, _otp, _logger));
         }
 
         [Test]

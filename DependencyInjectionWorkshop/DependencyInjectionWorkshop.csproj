@@ -86,6 +86,7 @@
     <Compile Include="Models\IOtp.cs" />
     <Compile Include="Models\IProfileRepo.cs" />
     <Compile Include="Models\Logger.cs" />
+    <Compile Include="Models\NotificationDecorator.cs" />
     <Compile Include="Models\OtpAdapter.cs" />
     <Compile Include="Models\ProfileRepo.cs" />
     <Compile Include="Models\Sha256Adapter.cs" />

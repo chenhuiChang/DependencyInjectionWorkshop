@@ -1,22 +1,17 @@
-﻿using System;
-using System.Net.Http;
-
-namespace DependencyInjectionWorkshop.Models
+﻿namespace DependencyInjectionWorkshop.Models
 {
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IProfileRepo _profileRepo;
         private readonly IFailedCounter _failedCounter;
-        private readonly INotification _notification;
         private readonly IHash _hash;
         private readonly IOtp _otp;
         private readonly ILogger _logger;
 
-        public AuthenticationService(IProfileRepo profileRepo, IFailedCounter failedCounter, INotification notification, IHash hash, IOtp otp, ILogger logger)
+        public AuthenticationService(IProfileRepo profileRepo, IFailedCounter failedCounter, IHash hash, IOtp otp, ILogger logger)
         {
             _profileRepo = profileRepo;
             _failedCounter = failedCounter;
-            _notification = notification;
             _hash = hash;
             _otp = otp;
             _logger = logger;
@@ -54,14 +49,8 @@ namespace DependencyInjectionWorkshop.Models
                 _failedCounter.Add(account);
                 var failedCount = _failedCounter.Get(account);
                 _logger.LogInfo($"accountId:{account} failed times:{failedCount}.");
-                NotifyForDecorator(account);
                 return false;
             }
-        }
-
-        private void NotifyForDecorator(string account)
-        {
-            _notification.Notify($"account:{account} try to login failed");
         }
     }
 }
