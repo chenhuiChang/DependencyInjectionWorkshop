@@ -1,6 +1,6 @@
 namespace DependencyInjectionWorkshop.Models
 {
-    public interface IAuthenticationService
+    public interface IAuthentication
     {
         bool IsValid(string account, string password, string otp);
     }

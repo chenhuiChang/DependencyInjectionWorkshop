@@ -1,15 +1,15 @@
 ﻿namespace DependencyInjectionWorkshop.Models
 {
-    public class AuthenticationService : IAuthenticationService
+    public class Authentication : IAuthentication
     {
         private readonly IProfileRepo _profileRepo;
         private readonly IFailedCounter _failedCounter;
         private readonly IHash _hash;
         private readonly IOtp _otp;
         private readonly ILogger _logger;
-        private FailedCounterDecorator _failedCounterDecorator;
 
-        public AuthenticationService(IProfileRepo profileRepo, IFailedCounter failedCounter, IHash hash, IOtp otp, ILogger logger)
+        public Authentication(IProfileRepo profileRepo, IFailedCounter failedCounter, IHash hash, IOtp otp,
+            ILogger logger)
         {
             _profileRepo = profileRepo;
             _failedCounter = failedCounter;
@@ -42,7 +42,6 @@
             }
             else
             {
-                // _failedCounterDecorator.AddFailedCounter(account, this);
                 var failedCount = _failedCounter.Get(account);
                 _logger.LogInfo($"accountId:{account} failed times:{failedCount}.");
                 return false;

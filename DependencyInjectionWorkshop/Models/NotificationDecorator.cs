@@ -1,27 +1,22 @@
 namespace DependencyInjectionWorkshop.Models
 {
-    public class NotificationDecorator: IAuthenticationService
+    public class NotificationDecorator: IAuthentication
     {
-        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthentication _authentication;
         private readonly INotification _notification;
 
-        public NotificationDecorator(INotification notification, IAuthenticationService authenticationService)
+        public NotificationDecorator(INotification notification, IAuthentication authentication)
         {
-            _authenticationService = authenticationService;
+            _authentication = authentication;
             _notification = notification;
-        }
-
-        private void NotifyForDecorator(string account)
-        {
-            _notification.Notify($"account:{account} try to login failed");
         }
 
         public bool IsValid(string account, string password, string otp)
         {
-            var isValid = _authenticationService.IsValid(account,password,otp);
+            var isValid = _authentication.IsValid(account,password,otp);
             if (!isValid)
             {
-                NotifyForDecorator(account);
+                _notification.Notify($"account:{account} try to login failed");
             }
 
             return isValid;
