@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Authentication.cs" />
+    <Compile Include="Models\AuthenticationDecoratorBase.cs" />
     <Compile Include="Models\FailedCounter.cs" />
     <Compile Include="Models\FailedCounterDecorator.cs" />
     <Compile Include="Models\FailedTooManyTimesException.cs" />
