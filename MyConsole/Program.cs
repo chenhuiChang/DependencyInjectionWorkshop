@@ -57,7 +57,7 @@ namespace MyConsole
             builder.RegisterType<FakeLogger>().As<ILogger>();
             builder.RegisterType<FakeOtp>().As<IOtp>();
             builder.RegisterType<FakeFailedCounter>().As<IFailedCounter>();
-            builder.RegisterType<FakeSlack>().As<INotification>();
+            builder.RegisterType<FakeLine>().As<INotification>();
 
             builder.RegisterType<AuthenticationService>().As<IAuthentication>();
             builder.RegisterDecorator<FailedCounterDecorator, IAuthentication>();
@@ -93,6 +93,19 @@ namespace MyConsole
         }
     }
 
+    internal class FakeLine : INotification
+    {
+        public void PushMessage(string message)
+        {
+            Console.WriteLine(message);
+        }
+        
+        public void Notify(string message)
+        {
+            PushMessage($"use LINE: {nameof(Notify)}, message:{message}");
+        }
+    }
+
     internal class FakeSlack : INotification
     {
         public void PushMessage(string message)
@@ -102,7 +115,7 @@ namespace MyConsole
         
         public void Notify(string message)
         {
-            PushMessage($"{nameof(Notify)}, message:{message}");
+            PushMessage($"use Slack: {nameof(Notify)}, message:{message}");
         }
     }
 
