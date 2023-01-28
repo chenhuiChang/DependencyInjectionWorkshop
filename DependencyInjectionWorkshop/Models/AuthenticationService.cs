@@ -26,13 +26,13 @@
         }
     }
 
-    public class Authentication : IAuthentication
+    public class AuthenticationService : IAuthentication
     {
         private readonly IProfileRepo _profileRepo;
         private readonly IHash _hash;
         private readonly IOtp _otp;
 
-        public Authentication(IProfileRepo profileRepo, IHash hash, IOtp otp)
+        public AuthenticationService(IProfileRepo profileRepo, IHash hash, IOtp otp)
         {
             _profileRepo = profileRepo;
             _hash = hash;
