@@ -1,21 +1,43 @@
 ﻿namespace DependencyInjectionWorkshop.Models
 {
+    public class LogDecorator : IAuthentication
+    {
+        private readonly IAuthentication _authentication;
+        private readonly IFailedCounter _failedCounter;
+        private readonly ILogger _logger;
+
+        public LogDecorator(IAuthentication authentication, IFailedCounter failedCounter, ILogger logger)
+        {
+            _authentication = authentication;
+            _failedCounter = failedCounter;
+            _logger = logger;
+        }
+
+        public bool IsValid(string account, string password, string otp)
+        {
+            var isValid = _authentication.IsValid(account, password, otp);
+            if (!isValid)
+            {
+                var failedCount = _failedCounter.Get(account);
+                _logger.LogInfo($"accountId:{account} failed times:{failedCount}.");
+            }
+
+            return isValid;
+        }
+    }
+
     public class Authentication : IAuthentication
     {
         private readonly IProfileRepo _profileRepo;
-        private readonly IFailedCounter _failedCounter;
         private readonly IHash _hash;
         private readonly IOtp _otp;
-        private readonly ILogger _logger;
 
-        public Authentication(IProfileRepo profileRepo, IFailedCounter failedCounter, IHash hash, IOtp otp,
-            ILogger logger)
+        public Authentication(IProfileRepo profileRepo, IHash hash, IOtp otp)
         {
             _profileRepo = profileRepo;
-            _failedCounter = failedCounter;
             _hash = hash;
             _otp = otp;
-            _logger = logger;
+            // _logDecorator = new LogDecorator(this, failedCounter,logger);
         }
 
         // public AuthenticationService()
@@ -42,8 +64,7 @@
             }
             else
             {
-                var failedCount = _failedCounter.Get(account);
-                _logger.LogInfo($"accountId:{account} failed times:{failedCount}.");
+                // _logDecorator.LogCurrentFailedCount(account);
                 return false;
             }
         }
