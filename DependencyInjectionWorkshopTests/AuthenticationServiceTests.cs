@@ -27,9 +27,10 @@ namespace DependencyInjectionWorkshopTests
             _otp = Substitute.For<IOtp>();
             _logger = Substitute.For<ILogger>();
             _authentication = new Authentication(_profileRepo, _hash, _otp);
-            _authentication = new NotificationDecorator(_notification, _authentication);
+            
             _authentication = new FailedCounterDecorator(_failedCounter, _authentication);
             _authentication = new LogDecorator(_authentication, _failedCounter,_logger);
+            _authentication = new NotificationDecorator(_notification, _authentication);
         }
 
         [Test]
@@ -106,6 +107,18 @@ namespace DependencyInjectionWorkshopTests
         {
             GivenAccountIsLocked("joey", true);
             ShouldThrowWhenLock("joey");
+        }
+
+        [Test]
+        public void check_decorator_order_when_invalid()
+        {
+            WhenInvalid();
+            Received.InOrder(() =>
+            {
+                _failedCounter.Add("joey");
+                _logger.LogInfo(Arg.Is<string>(m => m.Contains("joey")));
+                _notification.Notify(Arg.Any<string>());
+            });
         }
 
         private void ShouldThrowWhenLock(string account)
