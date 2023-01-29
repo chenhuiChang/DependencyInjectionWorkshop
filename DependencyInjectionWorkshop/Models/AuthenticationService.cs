@@ -3,7 +3,12 @@ using System.Net.Http;
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public class AuthenticationService
+    public interface IAuthentication
+    {
+        bool IsValid(string account, string password, string otp);
+    }
+
+    public class AuthenticationService : IAuthentication
     {
         private readonly IProfile _profile;
         private readonly IHash _hash;
@@ -53,8 +58,13 @@ namespace DependencyInjectionWorkshop.Models
             _failedCounter.Add(account);
             var failedCount = _failedCounter.GetFailedCount(account);
             _logger.LogInfo($"account:{account} failed times: {failedCount}.");
-            _notification.Notify($"account:{account} try to login failed");
+            NotifyForDecorator(account);
             return false;
+        }
+
+        private void NotifyForDecorator(string account)
+        {
+            _notification.Notify($"account:{account} try to login failed");
         }
     }
 }
