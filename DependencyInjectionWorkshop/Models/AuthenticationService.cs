@@ -15,8 +15,7 @@ namespace DependencyInjectionWorkshop.Models
     {
         public bool IsValid(string account, string password, string otp)
         {
-            
-            var httpClient = new HttpClient(){BaseAddress = new Uri("http://joey.com")};
+            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com") };
             var isLocked = IsLocked(account, httpClient);
             if (isLocked)
             {
@@ -32,6 +31,7 @@ namespace DependencyInjectionWorkshop.Models
                 ResetFailedCount(account, httpClient);
                 return true;
             }
+
             AddFailedCount(account, httpClient);
             var failedCount = GetFailedCount(account, httpClient);
             LogCurrentFailedCount(account, failedCount);
