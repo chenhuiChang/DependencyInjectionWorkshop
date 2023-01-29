@@ -2,7 +2,12 @@ using SlackAPI;
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public class SlackAdapter
+    public interface INotification
+    {
+        void Notify(string account);
+    }
+
+    public class SlackAdapter : INotification
     {
         public SlackAdapter()
         {

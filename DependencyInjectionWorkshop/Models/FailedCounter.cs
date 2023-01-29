@@ -2,7 +2,15 @@ using System.Net.Http;
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public class FailedCounter
+    public interface IFailedCounter
+    {
+        int GetFailedCount(string account, HttpClient httpClient);
+        void Add(string account, HttpClient httpClient);
+        void Reset(string account, HttpClient httpClient);
+        bool IsLocked(string account, HttpClient httpClient);
+    }
+
+    public class FailedCounter : IFailedCounter
     {
         public FailedCounter()
         {
@@ -16,13 +24,13 @@ namespace DependencyInjectionWorkshop.Models
             return failedCount;
         }
 
-        public void AddFailedCount(string account, HttpClient httpClient)
+        public void Add(string account, HttpClient httpClient)
         {
             var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", account).Result;
             addFailedCountResponse.EnsureSuccessStatusCode();
         }
 
-        public void ResetFailedCount(string account, HttpClient httpClient)
+        public void Reset(string account, HttpClient httpClient)
         {
             var resetResponse = httpClient.PostAsJsonAsync("api/failedCounter/Reset", account).Result;
             resetResponse.EnsureSuccessStatusCode();

@@ -5,21 +5,21 @@ namespace DependencyInjectionWorkshop.Models
 {
     public class AuthenticationService
     {
-        private readonly ProfileRepo _profileRepo;
-        private readonly Sha256Adapter _sha256Adapter;
-        private readonly OtpAdapter _otpAdapter;
-        private readonly FailedCounter _failedCounter;
-        private readonly SlackAdapter _slackAdapter;
-        private readonly NLogAdapter _nLogAdapter;
+        private readonly IProfile _profile;
+        private readonly IHash _hash;
+        private readonly IOtp _otp;
+        private readonly IFailedCounter _failedCounter;
+        private readonly INotification _notification;
+        private readonly ILogger _logger;
 
         public AuthenticationService()
         {
-            _profileRepo = new ProfileRepo();
-            _sha256Adapter = new Sha256Adapter();
-            _otpAdapter = new OtpAdapter();
+            _profile = new Profile();
+            _hash = new Sha256();
+            _otp = new OtpAdapter();
             _failedCounter = new FailedCounter();
-            _slackAdapter = new SlackAdapter();
-            _nLogAdapter = new NLogAdapter();
+            _notification = new SlackAdapter();
+            _logger = new NLogAdapter();
         }
 
         public bool IsValid(string account, string password, string otp)
@@ -31,20 +31,20 @@ namespace DependencyInjectionWorkshop.Models
                 throw new FailedTooManyTimesException() { account = account };
             }
 
-            var passwordFromDb = _profileRepo.GetPasswordFromDb(account);
-            var hashedPassword = _sha256Adapter.GetHashedResult(password);
-            var currentOtp = _otpAdapter.GetCurrentOtp(account, httpClient);
+            var passwordFromDb = _profile.GetPassword(account);
+            var hashedPassword = _hash.GetHashedResult(password);
+            var currentOtp = _otp.GetCurrentOtp(account, httpClient);
 
             if (hashedPassword == passwordFromDb && otp == currentOtp)
             {
-                _failedCounter.ResetFailedCount(account, httpClient);
+                _failedCounter.Reset(account, httpClient);
                 return true;
             }
 
-            _failedCounter.AddFailedCount(account, httpClient);
+            _failedCounter.Add(account, httpClient);
             var failedCount = _failedCounter.GetFailedCount(account, httpClient);
-            _nLogAdapter.LogCurrentFailedCount($"accout:{account} failed times: {failedCount}.");
-            _slackAdapter.Notify(account);
+            _logger.LogCurrentFailedCount($"account:{account} failed times: {failedCount}.");
+            _notification.Notify(account);
             return false;
         }
     }
