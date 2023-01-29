@@ -22,20 +22,19 @@ namespace DependencyInjectionWorkshop.Models
             _logger = logger;
         }
 
-        public AuthenticationService()
-        {
-            _profile = new Profile();
-            _hash = new Sha256();
-            _otp = new OtpAdapter();
-            _failedCounter = new FailedCounter();
-            _notification = new SlackAdapter();
-            _logger = new NLogAdapter();
-        }
+        // public AuthenticationService()
+        // {
+        //     _profile = new Profile();
+        //     _hash = new Sha256();
+        //     _otp = new OtpAdapter();
+        //     _failedCounter = new FailedCounter();
+        //     _notification = new SlackAdapter();
+        //     _logger = new NLogAdapter();
+        // }
 
         public bool IsValid(string account, string password, string otp)
         {
-            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com") };
-            var isLocked = _failedCounter.IsLocked(account, httpClient);
+            var isLocked = _failedCounter.IsLocked(account);
             if (isLocked)
             {
                 throw new FailedTooManyTimesException() { account = account };
@@ -43,16 +42,16 @@ namespace DependencyInjectionWorkshop.Models
 
             var passwordFromDb = _profile.GetPassword(account);
             var hashedPassword = _hash.GetHashedResult(password);
-            var currentOtp = _otp.GetCurrentOtp(account, httpClient);
+            var currentOtp = _otp.GetCurrentOtp(account);
 
             if (hashedPassword == passwordFromDb && otp == currentOtp)
             {
-                _failedCounter.Reset(account, httpClient);
+                _failedCounter.Reset(account);
                 return true;
             }
 
-            _failedCounter.Add(account, httpClient);
-            var failedCount = _failedCounter.GetFailedCount(account, httpClient);
+            _failedCounter.Add(account);
+            var failedCount = _failedCounter.GetFailedCount(account);
             _logger.LogCurrentFailedCount($"account:{account} failed times: {failedCount}.");
             _notification.Notify(account);
             return false;
