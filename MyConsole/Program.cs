@@ -29,6 +29,7 @@ namespace MyConsole
         // }
 
         private static IContainer _container;
+
         static void Main(string[] args)
         {
             RegistryContainer();
@@ -41,7 +42,12 @@ namespace MyConsole
         private static void RegistryContainer()
         {
             var builder = new ContainerBuilder();
-            builder.RegisterType<FakeProfile>().As<IProfile>();
+            // builder.RegisterType<FakeProfile>().As<IProfile>();
+            builder.RegisterType<FakeFeatureToggle>().As<IFeatureToggle>();
+            builder.RegisterType<ProfileFeatureToggle>().As<IProfile>();
+            builder.RegisterType<FakeProfile>();
+            builder.RegisterType<YuanBaoProfile>();
+
             builder.RegisterType<FakeSha256>().As<IHash>();
             builder.RegisterType<FakeOtp>().As<IOtp>();
             builder.RegisterType<FakeFailedCounter>().As<IFailedCounter>();
@@ -52,6 +58,14 @@ namespace MyConsole
             builder.RegisterDecorator<LogDecorator, IAuthentication>();
             builder.RegisterDecorator<NotificationDecorator, IAuthentication>();
             _container = builder.Build();
+        }
+    }
+
+    class FakeFeatureToggle : IFeatureToggle
+    {
+        public bool IsEnabled(string featureName)
+        {
+            return false;
         }
     }
 
@@ -118,16 +132,6 @@ namespace MyConsole
             var hashedContent = "password123";
             Console.WriteLine($"{nameof(FakeSha256)} hashed: {hashedContent}");
             return hashedContent;
-        }
-    }
-
-    internal class FakeProfile : IProfile
-    {
-        public string GetPassword(string account)
-        {
-            string password = "password123";
-            Console.WriteLine($"{nameof(FakeProfile)} GetPassword: {password}");
-            return password;
         }
     }
 }
