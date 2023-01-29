@@ -30,7 +30,12 @@
                 throw new FailedTooManyTimesException() { account = account };
             }
 
-            return _authenticationService.IsValid(account, password, otp);
+            var isValid = _authenticationService.IsValid(account, password, otp);
+            if (isValid)
+            {
+                _failedCounter.Reset(account);
+            }
+            return isValid;
         }
     }
 
@@ -78,7 +83,7 @@
 
             if (hashedPassword == passwordFromDb && otp == currentOtp)
             {
-                ResetFailedCount(account);
+                // _failedCounterDecorator.ResetFailedCount(account);
                 return true;
             }
 
@@ -97,11 +102,6 @@
         private void AddFailedCount(string account)
         {
             _failedCounter.Add(account);
-        }
-
-        private void ResetFailedCount(string account)
-        {
-            _failedCounter.Reset(account);
         }
     }
 }
