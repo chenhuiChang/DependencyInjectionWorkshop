@@ -10,17 +10,12 @@
         private readonly IProfile _profile;
         private readonly IHash _hash;
         private readonly IOtp _otp;
-        private readonly IFailedCounter _failedCounter;
-        private readonly ILogger _logger;
 
-        public AuthenticationService(IProfile profile, IHash hash, IOtp otp, IFailedCounter failedCounter,
-            ILogger logger)
+        public AuthenticationService(IProfile profile, IHash hash, IOtp otp)
         {
             _profile = profile;
             _hash = hash;
             _otp = otp;
-            _failedCounter = failedCounter;
-            _logger = logger;
         }
 
         // public AuthenticationService()
@@ -43,15 +38,8 @@
             {
                 return true;
             }
-            var failedCount = GetFailedCount(account);
-            _logger.LogInfo($"account:{account} failed times: {failedCount}.");
-            return false;
-        }
 
-        private int GetFailedCount(string account)
-        {
-            var failedCount = _failedCounter.GetFailedCount(account);
-            return failedCount;
+            return false;
         }
     }
 }
