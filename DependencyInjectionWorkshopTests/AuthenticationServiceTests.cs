@@ -10,7 +10,7 @@ namespace DependencyInjectionWorkshopTests
         public void is_valid()
         {
             var authenticationService = new AuthenticationService();
-            var isValid = authenticationService.IsValid("joey", "hello");
+            var isValid = authenticationService.IsValid("joey", "hello", "123456");
             Assert.AreEqual(true, isValid);
         }
     }
