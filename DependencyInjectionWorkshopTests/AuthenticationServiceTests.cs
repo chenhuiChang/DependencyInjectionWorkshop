@@ -26,9 +26,9 @@ namespace DependencyInjectionWorkshopTests
             _notification = Substitute.For<INotification>();
             _logger = Substitute.For<ILogger>();
             _authenticationService = new AuthenticationService(_profile, _hash, _otp);
-            _authenticationService = new NotificationDecorator(_authenticationService, _notification);
             _authenticationService = new FailedCounterDecorator(_authenticationService, _failedCounter);
             _authenticationService = new LogDecorator(_authenticationService, _failedCounter, _logger);
+            _authenticationService = new NotificationDecorator(_authenticationService, _notification);
         }
 
         [Test]
@@ -95,6 +95,19 @@ namespace DependencyInjectionWorkshopTests
             ShouldThrow<FailedTooManyTimesException>(() =>
             {
                 _authenticationService.IsValid("joey", "hashed password", "123456");
+            });
+        }
+
+        [Test]
+        public void check_decorator_order_when_invalid()
+        {
+            WhenInvalid("joey");
+            
+            Received.InOrder(() =>
+            {
+                _failedCounter.Add("joey");
+                _logger.LogInfo(Arg.Is<string>(s => s.Contains("joey")));
+                _notification.Notify(Arg.Is<string>(s => s.Contains("joey")));
             });
         }
         
