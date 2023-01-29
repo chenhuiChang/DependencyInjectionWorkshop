@@ -4,7 +4,7 @@ namespace DependencyInjectionWorkshop.Models
 {
     public interface ILogger
     {
-        void LogCurrentFailedCount(string message);
+        void LogInfo(string message);
     }
 
     public class NLogAdapter : ILogger
@@ -13,7 +13,7 @@ namespace DependencyInjectionWorkshop.Models
         {
         }
 
-        public void LogCurrentFailedCount(string message)
+        public void LogInfo(string message)
         {
             var logger = LogManager.GetCurrentClassLogger();
             logger.Info(message);

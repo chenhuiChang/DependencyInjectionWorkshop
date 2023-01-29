@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+﻿using System;
 using DependencyInjectionWorkshop.Models;
 using NSubstitute;
 using NUnit.Framework;
@@ -31,20 +31,131 @@ namespace DependencyInjectionWorkshopTests
         [Test]
         public void is_valid()
         {
-            var account = "joey";
-            GivenPasswordFromDb(account, "hashed password");
-            GivenAccountIsLocked(account, false);
+            GivenPasswordFromDb("joey", "hashed password");
+            GivenAccountIsLocked("joey", false);
             GivenHashResult("hello", "hashed password");
-            GivenCurrentOtp(account, "123_456_joey_hello_world");
-            var isValid = _authenticationService.IsValid(account,
+            GivenCurrentOtp("joey", "123_456_joey_hello_world");
+            var isValid = _authenticationService.IsValid("joey",
                 "hello",
                 "123_456_joey_hello_world");
+            
             ShouldBeValid(isValid);
         }
+        
+        [Test]
+        public void should_reset_failed_count_when_valid()
+        {
+            WhenValid();
+            ShouldResetFailedCount();
+        }
+
+        [Test]
+        public void is_invalid()
+        {
+            GivenPasswordFromDb("joey", "hashed password");
+            GivenAccountIsLocked("joey", false);
+            GivenHashResult("hello", "wrong password");
+            GivenCurrentOtp("joey", "123_456_joey_hello_world");
+            var isValid = _authenticationService.IsValid("joey",
+                "hello",
+                "123_456_joey_hello_world");
+            
+            ShouldBeInvalid(isValid);
+        }
+
+        [Test]
+        public void should_add_failed_count_when_invalid()
+        {
+            WhenInvalid("joey");
+            ShouldAddFailedCount("joey");
+        }
+
+        [Test]
+        public void should_notify_user_when_invalid()
+        {
+            WhenInvalid("joey");
+            ShouldNotifyUser("joey");
+        }
+
+        [Test]
+        public void should_log_failed_count_when_invalid()
+        {
+            GivenFailedCount(3);
+            WhenInvalid("joey");
+            ShouldLog("times: 3.");
+        }
+
+        [Test]
+        public void account_is_lock()
+        {
+            GivenAccountIsLocked("joey", true);
+            ShouldThrow<FailedTooManyTimesException>(() =>
+            {
+                _authenticationService.IsValid("joey", "hashed password", "123456");
+            });
+        }
+        
+        private void ShouldResetFailedCount()
+        {
+            _failedCounter.Received(1).Reset("joey");
+        }
+
+        private void ShouldThrow<TException>(TestDelegate action) where TException : Exception
+        {
+            Assert.Throws<TException>(action);
+        }
+
+        private void ShouldLog(string containContent)
+        {
+            _logger.Received(1).LogInfo(Arg.Is<string>(s => s.Contains(containContent)));
+        }
+
+        private void GivenFailedCount(int times)
+        {
+            _failedCounter.GetFailedCount("joey").Returns(times);
+        }
+
+        private void ShouldNotifyUser(string account)
+        {
+            _notification.Received(1).Notify(Arg.Is<string>(s => s.Contains(account) && s.Contains("login failed")));
+        }
+
+        private void ShouldAddFailedCount(string account)
+        {
+            _failedCounter.Received(1).Add(account);
+        }
+
+        private void WhenInvalid(string account)
+        {
+            GivenPasswordFromDb(account, "hashed password");
+            GivenAccountIsLocked(account, false);
+            GivenHashResult("hello", "wrong password");
+            GivenCurrentOtp(account, "123_456_joey_hello_world");
+            _authenticationService.IsValid(account,
+                "hello",
+                "123_456_joey_hello_world");
+        }
+
+        private static void ShouldBeInvalid(bool isValid)
+        {
+            Assert.AreEqual(false, isValid);
+        }
+
 
         private static void ShouldBeValid(bool isValid)
         {
             Assert.AreEqual(true, isValid);
+        }
+
+        private void WhenValid()
+        {
+            GivenPasswordFromDb("joey", "hashed password");
+            GivenAccountIsLocked("joey", false);
+            GivenHashResult("hello", "hashed password");
+            GivenCurrentOtp("joey", "123_456_joey_hello_world");
+            _authenticationService.IsValid("joey",
+                "hello",
+                "123_456_joey_hello_world");
         }
 
         private void GivenCurrentOtp(string account, string otp)
