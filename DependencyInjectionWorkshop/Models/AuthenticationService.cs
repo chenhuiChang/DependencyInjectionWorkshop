@@ -5,47 +5,22 @@
         bool IsValid(string account, string password, string otp);
     }
 
-    public class NotificationDecorator : IAuthentication
-    {
-        private readonly IAuthentication _authenticationService;
-        private readonly INotification _notification;
-
-        public NotificationDecorator(IAuthentication authenticationService, INotification notification)
-        {
-            _authenticationService = authenticationService;
-            _notification = notification;
-        }
-
-        public bool IsValid(string account, string password, string otp)
-        {
-            var isValid = _authenticationService.IsValid(account,password,otp);
-            if (!isValid)
-            {
-                _notification.Notify($"account:{account} try to login failed");
-            }
-
-            return isValid;
-        }
-    }
-
     public class AuthenticationService : IAuthentication
     {
         private readonly IProfile _profile;
         private readonly IHash _hash;
         private readonly IOtp _otp;
         private readonly IFailedCounter _failedCounter;
-
         private readonly ILogger _logger;
-        // private readonly NotificationDecorator _notificationDecorator;
 
-        public AuthenticationService(IProfile profile, IHash hash, IOtp otp, IFailedCounter failedCounter, ILogger logger)
+        public AuthenticationService(IProfile profile, IHash hash, IOtp otp, IFailedCounter failedCounter,
+            ILogger logger)
         {
             _profile = profile;
             _hash = hash;
             _otp = otp;
             _failedCounter = failedCounter;
             _logger = logger;
-            // _notificationDecorator = new NotificationDecorator(this, _notification);
         }
 
         // public AuthenticationService()
@@ -79,7 +54,6 @@
             _failedCounter.Add(account);
             var failedCount = _failedCounter.GetFailedCount(account);
             _logger.LogInfo($"account:{account} failed times: {failedCount}.");
-            // _notificationDecorator.NotifyForDecorator(account);
             return false;
         }
     }
