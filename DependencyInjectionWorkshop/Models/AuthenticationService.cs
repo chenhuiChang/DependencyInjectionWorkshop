@@ -35,6 +35,10 @@
             {
                 _failedCounter.Reset(account);
             }
+            else
+            {
+                _failedCounter.Add(account);
+            }
             return isValid;
         }
     }
@@ -87,7 +91,7 @@
                 return true;
             }
 
-            AddFailedCount(account);
+            // _failedCounter.Add(account);
             var failedCount = GetFailedCount(account);
             _logger.LogInfo($"account:{account} failed times: {failedCount}.");
             return false;
@@ -97,11 +101,6 @@
         {
             var failedCount = _failedCounter.GetFailedCount(account);
             return failedCount;
-        }
-
-        private void AddFailedCount(string account)
-        {
-            _failedCounter.Add(account);
         }
     }
 }
