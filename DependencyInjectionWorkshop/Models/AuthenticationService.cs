@@ -12,6 +12,16 @@ namespace DependencyInjectionWorkshop.Models
         private readonly INotification _notification;
         private readonly ILogger _logger;
 
+        public AuthenticationService(IProfile profile, IHash hash, IOtp otp, IFailedCounter failedCounter, INotification notification, ILogger logger)
+        {
+            _profile = profile;
+            _hash = hash;
+            _otp = otp;
+            _failedCounter = failedCounter;
+            _notification = notification;
+            _logger = logger;
+        }
+
         public AuthenticationService()
         {
             _profile = new Profile();
