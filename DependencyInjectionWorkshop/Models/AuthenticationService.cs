@@ -1,11 +1,31 @@
-﻿using System;
-using System.Net.Http;
-
-namespace DependencyInjectionWorkshop.Models
+﻿namespace DependencyInjectionWorkshop.Models
 {
     public interface IAuthentication
     {
         bool IsValid(string account, string password, string otp);
+    }
+
+    public class NotificationDecorator : IAuthentication
+    {
+        private readonly IAuthentication _authenticationService;
+        private readonly INotification _notification;
+
+        public NotificationDecorator(IAuthentication authenticationService, INotification notification)
+        {
+            _authenticationService = authenticationService;
+            _notification = notification;
+        }
+
+        public bool IsValid(string account, string password, string otp)
+        {
+            var isValid = _authenticationService.IsValid(account,password,otp);
+            if (!isValid)
+            {
+                _notification.Notify($"account:{account} try to login failed");
+            }
+
+            return isValid;
+        }
     }
 
     public class AuthenticationService : IAuthentication
@@ -14,17 +34,18 @@ namespace DependencyInjectionWorkshop.Models
         private readonly IHash _hash;
         private readonly IOtp _otp;
         private readonly IFailedCounter _failedCounter;
-        private readonly INotification _notification;
-        private readonly ILogger _logger;
 
-        public AuthenticationService(IProfile profile, IHash hash, IOtp otp, IFailedCounter failedCounter, INotification notification, ILogger logger)
+        private readonly ILogger _logger;
+        // private readonly NotificationDecorator _notificationDecorator;
+
+        public AuthenticationService(IProfile profile, IHash hash, IOtp otp, IFailedCounter failedCounter, ILogger logger)
         {
             _profile = profile;
             _hash = hash;
             _otp = otp;
             _failedCounter = failedCounter;
-            _notification = notification;
             _logger = logger;
+            // _notificationDecorator = new NotificationDecorator(this, _notification);
         }
 
         // public AuthenticationService()
@@ -58,13 +79,8 @@ namespace DependencyInjectionWorkshop.Models
             _failedCounter.Add(account);
             var failedCount = _failedCounter.GetFailedCount(account);
             _logger.LogInfo($"account:{account} failed times: {failedCount}.");
-            NotifyForDecorator(account);
+            // _notificationDecorator.NotifyForDecorator(account);
             return false;
-        }
-
-        private void NotifyForDecorator(string account)
-        {
-            _notification.Notify($"account:{account} try to login failed");
         }
     }
 }
