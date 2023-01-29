@@ -14,6 +14,16 @@ namespace DependencyInjectionWorkshop.Models
     {
         public bool IsValid(string account, string password, string otp)
         {
+            
+            var httpClient = new HttpClient(){BaseAddress = new Uri("http://joey.com")};
+            var isLockResponse = httpClient.PostAsJsonAsync("api/failedCounter/IsLock", account).Result;
+            isLockResponse.EnsureSuccessStatusCode();
+            var isLocked = isLockResponse.Content.ReadAsAsync<bool>().Result;
+            if (isLocked)
+            {
+                throw new FailedTooManyTimesException(){account = account};
+            }
+
             string passwordFromDb;
             using (var connection = new SqlConnection("my connection string"))
             {
@@ -29,7 +39,6 @@ namespace DependencyInjectionWorkshop.Models
             }
             var hashedPassword = stringBuilder.ToString();
 
-            var httpClient = new HttpClient(){BaseAddress = new Uri("http://joey.com")};
             var response = httpClient.PostAsJsonAsync("api/otps", account).Result;
             if (!response.IsSuccessStatusCode)
             {
@@ -40,13 +49,32 @@ namespace DependencyInjectionWorkshop.Models
 
             if (hashedPassword == passwordFromDb && otp == currentOtp)
             {
+                var resetResponse = httpClient.PostAsJsonAsync("api/failedCounter/Reset", account).Result;
+                resetResponse.EnsureSuccessStatusCode();
+                
                 return true;
             }
+
+            var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", account).Result;
+            addFailedCountResponse.EnsureSuccessStatusCode();
             
             var slackClient = new SlackClient("my slack api key");
             string message = $"account:{account} try to login failed";
             slackClient.PostMessage(response1 => { }, "my channel id", message, "my bot name");
             return false;
         }
+    }
+
+    public class FailedTooManyTimesException : Exception
+    {
+        public FailedTooManyTimesException()
+        {
+        }
+
+        public FailedTooManyTimesException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        public string account { get; set; }
     }
 }
